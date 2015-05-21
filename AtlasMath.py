@@ -23,7 +23,7 @@ class BandDepth:
     def IndicatorBandDepth( function, functionset, j=2 ): # Right now the functionsets are Dictionaries
         function
         bandDepth = 0.0
-        normalizingValue = 1.0/misc.comb(len(functionset), j) # TODO: The code to define the N might need to change depending on the data structure
+        normalizingValue = 1.0/misc.comb(len(functionset), j)
         for testBandSet in itertools.combinations(functionset, j):
             bandDepth = bandDepth + BandDepth.Indicator( function, testBandSet )
         return bandDepth*normalizingValue
@@ -32,7 +32,7 @@ class BandDepth:
     @staticmethod
     def ProportionalBandDepth( function, functionset, j=2 ):
         bandDepth = 0.0
-        normalizingValue = 1.0/misc.comb(len(functionset), j) # TODO: The code to define the N might need to change depending on the data structure
+        normalizingValue = 1.0/misc.comb(len(functionset), j)
         for testBandSet in itertools.combinations(functionset, j):
             bandDepth = bandDepth + BandDepth.Proportion( function, testBandSet )
         return bandDepth*normalizingValue
