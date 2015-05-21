@@ -30,29 +30,27 @@ class ProgrammableAtlas(AtlasBase):
     '''
     def __init__( self, name ):
         super(ProgrammableAtlas, self).__init__(name)
-        self.PopulationHeaders = dict()
-        self.PopulationData = []
+        self.Population = dict()
         self.Functions = dict()
-        self.Matched = False
         pass
 
 
     def ParsePopulationData( self, inputpath ):
-        self.PopulationHeaders = dict()
-        self.PopulationData = []
+        self.Population = dict()
 
         with open(inputpath, 'rb') as csvFile:
             reader = csv.reader(csvFile, delimiter=',', quotechar='"')
             header = True
+            names = []
             for row in reader:
                 if (header):
                     header = False
-                    for i,var in enumerate(row):
-                        self.PopulationHeaders[var] = i
-                        self.PopulationData.append([])
+                    for var in row:
+                        self.Population[var] = []
+                        names.append(var)
                     continue
                 for i,val in enumerate(row):
-                    self.PopulationData[i].extend([float(val)])
+                    self.Population[names[i]].extend([float(val)])
         pass
         
 
