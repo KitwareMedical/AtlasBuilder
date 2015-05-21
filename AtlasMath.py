@@ -1,4 +1,6 @@
 import numpy as np
+import scipy.misc as misc
+import itertools
 
 ################################
 class Weighting:
@@ -18,20 +20,49 @@ class Weighting:
 class BandDepth:
 
     @staticmethod
-    def IndicatorBandDepth( function, functionset, j=2 ):
-        pass
+    def IndicatorBandDepth( function, functionset, j=2 ): # Right now the functionsets are Dictionaries
+        function
+        bandDepth = 0.0
+        normalizingValue = 1.0/misc.comb(len(functionset), j) # TODO: The code to define the N might need to change depending on the data structure
+        for testBandSet in itertools.combinations(functionset, j):
+            bandDepth = bandDepth + BandDepth.Indicator( function, testBandSet )
+        return bandDepth*normalizingValue
+
 
     @staticmethod
     def ProportionalBandDepth( function, functionset, j=2 ):
-        pass
+        bandDepth = 0.0
+        normalizingValue = 1.0/misc.comb(len(functionset), j) # TODO: The code to define the N might need to change depending on the data structure
+        for testBandSet in itertools.combinations(functionset, j):
+            bandDepth = bandDepth + BandDepth.Proportion( function, testBandSet )
+        return bandDepth*normalizingValue
+
 
     @staticmethod
     def WeightedIndicatorBandDepth( function, functionset, weights, j=2 ):
-        pass
+        numerator = 0.0
+        denominator = 0.0
+        for indicies in itertools.combinations(range(len(weights)), j):
+            weightSubset = BandDepth.ExtractSubset(weights, indicies)
+            testBandSet = BandDepth.ExtractSubset(functionset, indicies)
+            product = BandDepth.ProductOfList(weightSubset)
+            denominator += product
+            numerator += product*BandDepth.Indicator(function, testBandSet)
+        return numerator/denominator
+
 
     @staticmethod
     def WeightedProportionalBandDepth( function, functionset, weights, j=2 ):
-        pass
+        numerator = 0.0
+        denominator = 0.0
+        for indicies in itertools.combinations(range(len(weights)), j):
+            weightSubset = BandDepth.ExtractSubset(weights, indicies)
+            testBandSet = BandDepth.ExtractSubset(functionset, indicies)
+            product = BandDepth.ProductOfList(weightSubset)
+            denominator += product
+            numerator += product*BandDepth.Proportion(function, testBandSet)
+        return numerator/denominator
+
 
     @staticmethod
     def Indicator( function, bandset ):
@@ -72,3 +103,19 @@ class BandDepth:
                 maxVal = function[x]
 
         return [minVal, maxVal]
+
+
+    @staticmethod
+    def ExtractSubset( objectset, indextuple):
+        output = []
+        for i in indextuple:
+            output.append(objectset[i])
+        return output
+
+
+    @staticmethod
+    def ProductOfList( numericallist ):
+        r = 1
+        for i in numericallist:
+            r *= i
+        return r

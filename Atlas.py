@@ -2,6 +2,7 @@ import os
 import csv
 import sys
 import AtlasMath
+import operator
 
 ##############################
 class AtlasBase(object):
@@ -28,9 +29,8 @@ class ProgrammableAtlas(AtlasBase):
     def __init__( self, name ):
         super(ProgrammableAtlas, self).__init__(name)
         self.PopulationHeaders = dict()
-        self.FunctionHeaders = dict()
         self.PopulationData = []
-        self.FunctionData = []
+        self.Functions = dict()
         self.Matched = False
         pass
 
@@ -50,33 +50,47 @@ class ProgrammableAtlas(AtlasBase):
                         self.PopulationData.append([])
                     continue
                 for i,val in enumerate(row):
-                    self.PopulationData[i].extend([val])
+                    self.PopulationData[i].extend([float(val)])
         
 
     def ParseFunctionData( self, inputpath ):
-        self.FunctionHeaders = dict()
-        self.FunctionData = []
+        self.Functions = dict()
 
         with open(inputpath, 'rb') as csvFile:
             reader = csv.reader(csvFile, delimiter=',',quotechar='"')
             header = True
+            names = []
             for row in reader:
                 if (header):
                     header = False
-                    for i,var in enumerate(row):
-                        self.FunctionHeaders[var] = i
-                        self.FunctionData.append([])
+                    for var in row:
+                        self.Functions[var] = []
+                        names.append(var)
                     continue
                 for i,val in enumerate(row):
-                    self.FunctionData[i].extend([val])
+                    self.Functions[names[i]].extend([float(val)])
 
-    def __MatchedKey( self, key ):
-        return key in self.PopulationHeaders and key in self.FunctionHeaders
 
-    def GenerateInclusionAtlas( self, key ):
+    def InclusionAtlas( self, jval=2 ):
+        # generate all band depths
+        bandDepthScores = dict()
+        for key in self.Functions:
+            function = Functions[key]
+            bandDepthScores[key] = AtlasMath.BandDepth.IndicatorBandDepth(function, self.Functions.values(), jval)
+        # order band depths
+        sortedBandDepths = sorted(bandDepthScores.items(), key=operator.itemgetter(1))
+
+
         pass
 
-    def GenerateModifiedAtlas( self, key ):
+    def ModifiedAtlas( self, jval=2 ):
+        # generate all band depths
+        bandDepthScores = dict()
+        for key in self.Functions:
+            function = Functions[key]
+            bandDepthScores[key] = AtlasMath.BandDepth.ProportionalBandDepth(function, self.Functions.values(), jval)
+        # order band depths
+        sortedBandDepths = sorted(bandDepthScores.items(), key=operator.itemgetter(1))
         pass
 
 
@@ -89,11 +103,7 @@ class ProgrammableAtlas(AtlasBase):
     Functions with hidden variable values close to the center are weighted more than
     those that are far away.
     '''
-    def GenerateWeightedInclusionAtlas( self, key, populationvar, stdev, center ):
-        if not self.__MatchedKey(key):
-            sys.stdout.write('The functions are not identifiable by the provided key')
-            sys.exit(-1)
-
+    def WeightedInclusionAtlas( self, key, populationvar, stdev, center ):
         # Use the center and the stdev to generate weights for the functions
         hiddenVariableIndex = self.PopulationHeaders[populationvar]
         hiddenVariableData = self.PopulationData[hiddenVariableIndex]
@@ -102,7 +112,10 @@ class ProgrammableAtlas(AtlasBase):
 
         pass
 
-    def GenerateWeightedModifiedAtlas( self, key, populationvar, stdev, center ):
+    def WeightedModifiedAtlas( self, key, populationvar, stdev, center ):
+        hiddenVariableIndex = self.PopulationHeaders[populationvar]
+        hiddenVariableData = self.PopulationData[hiddenVariableIndex]
+        weights = AtlasMath.Weighting.GenerateWeights(hiddenVariableData, stdev, center)
         pass
         
 #############################
