@@ -13,7 +13,7 @@ class Weighting:
             w = np.exp(((value - center)**2)/(2*(stdev**2)))
             weights.extend([w])
             running_sum = running_sum + w
-        return weights/running_sum
+        return [i/running_sum for i in weights]
 
 
 ################################
