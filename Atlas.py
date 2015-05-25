@@ -12,7 +12,7 @@ class AtlasBase(object):
     '''the base class for the atlas'''
     def __init__( self, name ):
         self.Name = name
-        pass
+        return
 
     
 ##############################
@@ -34,12 +34,16 @@ class ProgrammableAtlas(AtlasBase):
         self.SetFunctions = False
         self.Population = dict()
         self.Functions = dict()
-        pass
+        return
 
 
     def ParsePopulationData( self, inputpath ):
         self.Population = dict()
+        self.ExtendPopulationData(inputpath)
+        return
+        
 
+    def ExtendPopulationData( self, inputpath ):
         with open(inputpath, 'rb') as csvFile:
             reader = csv.reader(csvFile, delimiter=',', quotechar='"')
             header = True
@@ -54,12 +58,16 @@ class ProgrammableAtlas(AtlasBase):
                 for i,val in enumerate(row):
                     self.Population[names[i]].extend([float(val)])
         self.SetPopulation = True
-        pass
+        return
         
 
     def ParseFunctionData( self, inputpath ):
         self.Functions = dict()
+        self.ExtendFunctionData(inputpath)
+        return
 
+
+    def ExtendFunctionData( self, inputpath ):
         with open(inputpath, 'rb') as csvFile:
             reader = csv.reader(csvFile, delimiter=',',quotechar='"')
             header = True
@@ -74,13 +82,13 @@ class ProgrammableAtlas(AtlasBase):
                 for i,val in enumerate(row):
                     self.Functions[names[i]].extend([float(val)])
         self.SetFunctions = True
-        pass
+        return
 
 
     def InclusionAtlas( self, jval=2 ):
         if not self.SetFunctions:
             sys.stdout("There is no function data")
-            pass
+            return
         # generate all band depths
         bandDepthScores = dict()
         for key in self.Functions:
@@ -90,13 +98,13 @@ class ProgrammableAtlas(AtlasBase):
         sortedBandDepths = sorted(bandDepthScores.items(), key=operator.itemgetter(1))
         # plot the median, the 50% band, the fences, and outliers
         self.__PlotAtlas(sortedBandDepths)
-        pass
+        return
 
 
     def ModifiedAtlas( self, jval=2 ):
         if not self.SetFunctions:
             sys.stdout("There is no function data")
-            pass
+            return
         # generate all band depths
         bandDepthScores = dict()
         for key in self.Functions:
@@ -106,7 +114,7 @@ class ProgrammableAtlas(AtlasBase):
         sortedBandDepths = sorted(bandDepthScores.items(), key=operator.itemgetter(1))
         # plot the median, the 50% band, the fences, and outliers
         self.__PlotAtlas(sortedBandDepths)
-        pass
+        return
 
 
     '''
@@ -118,13 +126,13 @@ class ProgrammableAtlas(AtlasBase):
     Functions with hidden variable values close to the center are weighted more than
     those that are far away.
     '''
-    def WeightedInclusionAtlas( self, categorykey, populationvar, stdev, center ):
+    def WeightedInclusionAtlas( self, categorykey, populationvar, stdev, center, jval=2 ):
         if not self.SetFunctions:
             sys.stdout("There is no function data")
-            pass
+            return
         if not self.SetPopulation:
             sys.stdout("There is no population data to use to determine weights")
-            pass
+            return
         # Use the center and the stdev to generate weights for the functions
         hiddenVariableData = self.Population[populationvar]
         weights = AtlasMath.Weighting.GenerateWeights(hiddenVariableData, stdev, center)
@@ -136,16 +144,16 @@ class ProgrammableAtlas(AtlasBase):
 
         sortedBandDepth = sorted(bandDepthScores.items(), key=operator.itemgetter(1))
         self.__PlotWeightedAtlas(sortedBandDepth, categorykey)
-        pass
+        return
 
 
-    def WeightedModifiedAtlas( self, categorykey, populationvar, stdev, center ):
+    def WeightedModifiedAtlas( self, categorykey, populationvar, stdev, center, jval=2 ):
         if not self.SetFunctions:
             sys.stdout("There is no function data")
-            pass
+            return
         if not self.SetPopulation:
             sys.stdout("There is no population data to use to determine weights")
-            pass
+            return
         hiddenVariableData = self.Population[populationvar]
         weights = AtlasMath.Weighting.GenerateWeights(hiddenVariableData, stdev, center)
 
@@ -156,7 +164,7 @@ class ProgrammableAtlas(AtlasBase):
 
         sortedBandDepth = sorted(bandDepthScores.items(), key=operator.itemgetter(1))
         self.__PlotWeightedAtlas(sortedBandDepth, self.__matchweights__(weights, categorykey))
-        pass
+        return
         
         
     def __PlotAtlas( self, sortedfunctiontuples ):
@@ -174,7 +182,7 @@ class ProgrammableAtlas(AtlasBase):
             minimum = np.minimum(minimum, self.Functions[pair[0]])
 
         self.__plotlines__(median, maximum, minimum)
-        pass
+        return
 
 
     def __PlotWeightedAtlas( self, sortedfunctiontuples, weightdict):
@@ -190,7 +198,7 @@ class ProgrammableAtlas(AtlasBase):
             i += 1
 
         self.__plotlines__(median, maximum, minimum)
-        pass
+        return
 
 
     def __plotlines__( self, median, maximum, minimum):
@@ -202,7 +210,7 @@ class ProgrammableAtlas(AtlasBase):
 
         plt.fill_between(x, minimum, maximum, color='magenta', alpha='0.5')
         plt.show()
-        pass
+        return
 
 
     def __matchweights__( self, weights, categorykey ):
