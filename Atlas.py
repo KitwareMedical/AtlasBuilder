@@ -108,6 +108,7 @@ class ProgrammableAtlas(AtlasBase):
         self.__PlotAtlas(sortedBandDepths)
         pass
 
+
     '''
     "categorykey" is the key that identifies how the population
     data and the function data match. It is a key in the population dict.
@@ -135,7 +136,7 @@ class ProgrammableAtlas(AtlasBase):
 
         sortedBandDepth = sorted(bandDepthScores.items(), key=operator.itemgetter(1))
         self.__PlotWeightedAtlas(sortedBandDepth, categorykey)
-
+        pass
 
 
     def WeightedModifiedAtlas( self, categorykey, populationvar, stdev, center ):
@@ -155,6 +156,7 @@ class ProgrammableAtlas(AtlasBase):
 
         sortedBandDepth = sorted(bandDepthScores.items(), key=operator.itemgetter(1))
         self.__PlotWeightedAtlas(sortedBandDepth, self.__matchweights__(weights, categorykey))
+        pass
         
         
     def __PlotAtlas( self, sortedfunctiontuples ):
@@ -202,6 +204,7 @@ class ProgrammableAtlas(AtlasBase):
         plt.show()
         pass
 
+
     def __matchweights__( self, weights, categorykey ):
         pairs = dict
         functionIDs = self.Population[categorykey]
@@ -210,5 +213,4 @@ class ProgrammableAtlas(AtlasBase):
         return pairs
 
     
-
 #############################
