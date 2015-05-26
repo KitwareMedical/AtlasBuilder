@@ -3,12 +3,20 @@ import sys
 
 sys.path.append('../..')
 
+rootpath = 'Path/goes/here'
+
 from Atlas import *
 #################################
 
 ''' The two following input functions can be 
 	changed to fit hpw the data is stored '''
 def UsePopulationData(atlas, inputpath):
+	atlas.DefineCategoryKey('Key')
+	# can define dataset in one of two ways
+	atlas.PopulationPaths = ['Fill in the list']
+	atlas.ParsePopulationData()
+	#or
+	atlas.ParsePopulationData(['same list as earlier'])
 	pass
 
 def UseFunctionData(atlas, inputpath):
@@ -20,7 +28,6 @@ This should be instance specific.
 def ModifyFunctions(atlas):
 	pass
 
-def DisplayAtlas(**kwargs):
 
 def InitializeAtlas():
 	'''
@@ -30,7 +37,7 @@ def InitializeAtlas():
 	UsePopulationData(atlas, "example/path")
 	UseFunctionData(atlas, "example/path2")
 	ModifyFunctions(atlas)
-	DisplayAtlas('list of keywords')
+	atlas.ProduceAtlas("lots of keywords to set the stage") # the keywords describe the type of atlas (Indicator/no weighted/no)
 	return
 
 def main():

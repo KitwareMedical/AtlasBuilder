@@ -30,16 +30,40 @@ class ProgrammableAtlas(AtlasBase):
     '''
     def __init__( self, name ):
         super(ProgrammableAtlas, self).__init__(name)
-        self.SetPopulation = False
-        self.SetFunctions = False
-        self.Population = dict()
-        self.Functions = dict()
+        self.__SetPopulation = False
+        self.__SetFunctions = False
+        self.__Population = dict()
+        self.__Functions = dict()
+        self.PopulationPaths = []
+        self.FunctionPaths = []
+        self.CategoryKey = ''
         return
 
 
-    def ParsePopulationData( self, inputpath ):
-        self.Population = dict()
-        self.ExtendPopulationData(inputpath)
+    def ProduceAtlas( self, stdev=None, center=None, populationvar=None, modified=False, jval=2 ):
+        if not modified and populationvar is None:
+            self.InclusionAtlas(jval)
+            return
+        elif not modified and populationvar is not None:
+            self.WeightedInclusionAtlas(populationvar, stdev, center, jval)
+            return
+        elif modified and populationvar is None:
+            self.ModifiedAtlas(jval)
+            return
+        elif modified and populationvar is not None:
+            self.WeightedModifiedAtlas(populationvar, stdev, center, jval)
+            return
+        else:
+            sys.stdout("Not a valid argument set")
+            return
+
+
+    def ParsePopulationData( self, pathlist=None ):
+        if pathlist is None:
+            pathlist = self.PopulationPaths
+        self.__Population = dict()
+        for inputpath in pathlist:
+            self.ExtendPopulationData(inputpath)
         return
         
 
@@ -52,18 +76,26 @@ class ProgrammableAtlas(AtlasBase):
                 if (header):
                     header = False
                     for var in row:
-                        self.Population[var] = []
+                        self.__Population[var] = []
                         names.append(var)
                     continue
                 for i,val in enumerate(row):
-                    self.Population[names[i]].extend([float(val)])
-        self.SetPopulation = True
+                    self.__Population[names[i]].extend([float(val)])
+        self.__SetPopulation = True
         return
         
 
-    def ParseFunctionData( self, inputpath ):
-        self.Functions = dict()
-        self.ExtendFunctionData(inputpath)
+    def DefineCategoryKey( self, key ):
+        self.CategoryKey = key
+        return
+
+
+    def ParseFunctionData( self, pathlist=None ):
+        self.__Functions = dict()
+        if pathlist is None:
+            pathlist = self.FunctionPaths
+        for inputpath in pathlist:
+            self.ExtendFunctionData(inputpath)
         return
 
 
@@ -76,40 +108,27 @@ class ProgrammableAtlas(AtlasBase):
                 if (header):
                     header = False
                     for var in row:
-                        self.Functions[var] = []
+                        self.__Functions[var] = []
                         names.append(var)
                     continue
                 for i,val in enumerate(row):
-                    self.Functions[names[i]].extend([float(val)])
-        self.SetFunctions = True
+                    self.__Functions[names[i]].extend([float(val)])
+        self.__SetFunctions = True
         return
 
 
-    def InclusionAtlas( self, jval=2 ):
-        if not self.SetFunctions:
+    def GenerateAtlas( self, modified=False, jval=2 ):
+        if not self.__SetFunctions:
             sys.stdout("There is no function data")
             return
+        bandDepthGenerator = AtlasMath.BandDepth.IndicatorBandDepth
+        if modified:
+            bandDepthGenerator = AtlasMath.BandDepth.ProportionalBandDepth
         # generate all band depths
         bandDepthScores = dict()
-        for key in self.Functions:
-            function = self.Functions[key]
-            bandDepthScores[key] = AtlasMath.BandDepth.IndicatorBandDepth(function, self.Functions.values(), jval)
-        # order band depths
-        sortedBandDepths = sorted(bandDepthScores.items(), key=operator.itemgetter(1))
-        # plot the median, the 50% band, the fences, and outliers
-        self.__PlotAtlas(sortedBandDepths)
-        return
-
-
-    def ModifiedAtlas( self, jval=2 ):
-        if not self.SetFunctions:
-            sys.stdout("There is no function data")
-            return
-        # generate all band depths
-        bandDepthScores = dict()
-        for key in self.Functions:
-            function = self.Functions[key]
-            bandDepthScores[key] = AtlasMath.BandDepth.ProportionalBandDepth(function, self.Functions.values(), jval)
+        for key in self.__Functions:
+            function = self.__Functions[key]
+            bandDepthScores[key] = bandDepthGenerator(function, self.__Functions.values(), jval)
         # order band depths
         sortedBandDepths = sorted(bandDepthScores.items(), key=operator.itemgetter(1))
         # plot the median, the 50% band, the fences, and outliers
@@ -118,59 +137,41 @@ class ProgrammableAtlas(AtlasBase):
 
 
     '''
-    "categorykey" is the key that identifies how the population
-    data and the function data match. It is a key in the population dict.
     "populationvar" is the variable used to give weights to the functions.
     "stdev" is the standard deviation of the gaussian weighting function.
     "center" is the center of the gaussian weighting function. 
     Functions with hidden variable values close to the center are weighted more than
     those that are far away.
     '''
-    def WeightedInclusionAtlas( self, categorykey, populationvar, stdev, center, jval=2 ):
-        if not self.SetFunctions:
+    def GenerateWeightedAtlas( self, populationvar, stdev, center, modified=False, jval=2 ):
+        if not self.__SetFunctions:
             sys.stdout("There is no function data")
             return
-        if not self.SetPopulation:
+        if not self.__SetPopulation:
             sys.stdout("There is no population data to use to determine weights")
             return
         # Use the center and the stdev to generate weights for the functions
-        hiddenVariableData = self.Population[populationvar]
+        hiddenVariableData = self.__Population[populationvar]
         weights = AtlasMath.Weighting.GenerateWeights(hiddenVariableData, stdev, center)
 
-        bandDepthScores = dict()
-        for key in self.Functions:
-            function = self.Functions[key]
-            bandDepthScores[key] = AtlasMath.BandDepth.WeightedIndicatorBandDepth(function, self.Functions.values(), weights, jval)
-
-        sortedBandDepth = sorted(bandDepthScores.items(), key=operator.itemgetter(1))
-        self.__PlotWeightedAtlas(sortedBandDepth, categorykey)
-        return
-
-
-    def WeightedModifiedAtlas( self, categorykey, populationvar, stdev, center, jval=2 ):
-        if not self.SetFunctions:
-            sys.stdout("There is no function data")
-            return
-        if not self.SetPopulation:
-            sys.stdout("There is no population data to use to determine weights")
-            return
-        hiddenVariableData = self.Population[populationvar]
-        weights = AtlasMath.Weighting.GenerateWeights(hiddenVariableData, stdev, center)
+        bandDepthGenerator = AtlasMath.BandDepth.WeightedIndicatorBandDepth
+        if modified:
+            bandDepthGenerator = AtlasMath.BandDepth.WeightedProportionalBandDepth
 
         bandDepthScores = dict()
-        for key in self.Functions:
-            function = self.Functions[key]
-            bandDepthScores[key] = AtlasMath.BandDepth.WeightedProportionalBandDepth(function, self.Functions.values(), weights, jval)
+        for key in self.__Functions:
+            function = self.__Functions[key]
+            bandDepthScores[key] = bandDepthGenerator(function, self.__Functions.values(), weights, jval)
 
         sortedBandDepth = sorted(bandDepthScores.items(), key=operator.itemgetter(1))
-        self.__PlotWeightedAtlas(sortedBandDepth, self.__matchweights__(weights, categorykey))
+        self.__PlotWeightedAtlas(sortedBandDepth, self.CategoryKey)
         return
         
         
     def __PlotAtlas( self, sortedfunctiontuples ):
         '''
         the function tuples come in key value pairs
-        the keys are used with self.Functions to 
+        the keys are used with self.__Functions to 
         extract the actual function values
         '''
         median = self.Funtions[sortedfunctiontuples[0][0]]
@@ -178,14 +179,14 @@ class ProgrammableAtlas(AtlasBase):
         maximum = -np.Inf + np.zeros(len(median))
         half =  ceil(len(sortedfunctiontuples)/2.0)
         for pair in sortedfunctiontuples[:half]:
-            maximum = np.maximum(maximum, self.Functions[pair[0]])
-            minimum = np.minimum(minimum, self.Functions[pair[0]])
+            maximum = np.maximum(maximum, self.__Functions[pair[0]])
+            minimum = np.minimum(minimum, self.__Functions[pair[0]])
 
-        self.__plotlines__(median, maximum, minimum)
+        self.__PlotLines(median, maximum, minimum)
         return
 
 
-    def __PlotWeightedAtlas( self, sortedfunctiontuples, weightdict):
+    def __PlotWeightedAtlas( self, sortedfunctiontuples, weightdict ):
         median = self.Funtions[sortedfunctiontuples[0][0]]
         minimum = np.Inf + np.zeros(len(median))
         maximum = -np.Inf + np.zeros(len(median))
@@ -197,11 +198,11 @@ class ProgrammableAtlas(AtlasBase):
             cumulativeWeight += weightdict[sortedfunctiontuples[i][0]]
             i += 1
 
-        self.__plotlines__(median, maximum, minimum)
+        self.__PlotLines(median, maximum, minimum)
         return
 
 
-    def __plotlines__( self, median, maximum, minimum):
+    def __PlotLines( self, median, maximum, minimum ):
         x = np.linspace(0.0, 1.0, len(median))
         # Plotting of lines
         plt.plot(x, median, 'k')
@@ -213,9 +214,9 @@ class ProgrammableAtlas(AtlasBase):
         return
 
 
-    def __matchweights__( self, weights, categorykey ):
+    def __MatchWeights( self, weights ):
         pairs = dict
-        functionIDs = self.Population[categorykey]
+        functionIDs = self.__Population[self.CategoryKey]
         for i,weight in enumerate(weights):
             pairs[functionIDs[i]] = weight
         return pairs
