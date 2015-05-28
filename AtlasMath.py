@@ -23,8 +23,7 @@ class BandDepth:
 
     @staticmethod
     # Right now the functionsets are Dictionaries
-    def IndicatorBandDepth(function, functionset, j=2):
-        function
+    def IndicatorBandDepth(function, functionset, j=2): # the function set is not in the same order as the indicies think it should be
         bandDepth = 0.0
         normalizingValue = 1.0/misc.comb(len(functionset), j)
         for testBandSet in itertools.combinations(functionset, j):
@@ -40,24 +39,26 @@ class BandDepth:
         return bandDepth*normalizingValue
 
     @staticmethod
-    def WeightedIndicatorBandDepth(function, functionset, weights, j=2):
+    def WeightedIndicatorBandDepth(key, functiondict, weightdict, j=2):
+        function = functiondict[key]
         numerator = 0.0
         denominator = 0.0
-        for indicies in itertools.combinations(range(len(weights)), j):
-            weightSubset = BandDepth.ExtractSubset(weights, indicies)
-            testBandSet = BandDepth.ExtractSubset(functionset, indicies)
+        for keys in itertools.combinations(functiondict.keys(), j):
+            weightSubset = BandDepth.ExtractSubset(weightdict, keys)
+            testBandSet = BandDepth.ExtractSubset(functiondict, keys)
             product = BandDepth.ProductOfList(weightSubset)
             denominator += product
             numerator += product*BandDepth.Indicator(function, testBandSet)
         return numerator/denominator
 
     @staticmethod
-    def WeightedProportionalBandDepth(function, functionset, weights, j=2):
+    def WeightedProportionalBandDepth(key, functiondict, weightdict, j=2):
+        function = functiondict[key]
         numerator = 0.0
         denominator = 0.0
-        for indicies in itertools.combinations(range(len(weights)), j):
-            weightSubset = BandDepth.ExtractSubset(weights, indicies)
-            testBandSet = BandDepth.ExtractSubset(functionset, indicies)
+        for keys in itertools.combinations(functiondict.keys(), j):
+            weightSubset = BandDepth.ExtractSubset(weightdict, keys)
+            testBandSet = BandDepth.ExtractSubset(functiondict, keys)
             product = BandDepth.ProductOfList(weightSubset)
             denominator += product
             numerator += product*BandDepth.Proportion(function, testBandSet)
@@ -103,10 +104,10 @@ class BandDepth:
         return [minVal, maxVal]
 
     @staticmethod
-    def ExtractSubset(objectset, indextuple):
+    def ExtractSubset(objectdict, keytuple):
         output = []
-        for i in indextuple:
-            output.append(objectset[i])
+        for key in keytuple:
+            output.append(objectdict[key])
         return output
 
     @staticmethod

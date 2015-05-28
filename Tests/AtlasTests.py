@@ -75,24 +75,24 @@ def main():
     
     # crossAtlas.ProduceAtlas(
     #     proportional=False, populationvar='Age', stdev=100., center=200.)
-    f, (ax0, ax1) = plt.subplots(2)
-    # fn.fboxplot(functions, xdata=np.linspace(0., 1., 100), ax=ax1)
-    a = NormalDist(15., 15.)
-    b = NormalDist(15., 100.)
-    c = NormalDist(15., 200.)
+    f, (ax0, ax1, ax2, ax3, ax5) = plt.subplots(5)
+    fn.fboxplot(functions, xdata=np.linspace(0., 1., 100), ax=ax2)
+    a = NormalDist(25., 20.)
+    b = NormalDist(25., 100.)
+    c = NormalDist(25., 180.)
     x = range(200)
     xdata = np.linspace(0, 200, 30)
     ydata = np.ones(30)/2.
     ax0.plot(xdata, ydata, 'bo')
     ax0. plot(x, a)
-    # ax0. plot(x, b)
-    # ax0. plot(x, c)
+    ax0. plot(x, b)
+    ax0. plot(x, c)
 
-    line100Atlas.ProduceAtlas(proportional=False, populationvar='Age', stdev=15., center=15., ax=ax1)
+    offsetAtlas.ProduceAtlas(proportional=True, ax=ax1)
 
-    # line100Atlas.ProduceAtlas(proportional=False, populationvar='Age', stdev=15., center=100., ax=ax3)
+    offsetAtlas.ProduceAtlas(proportional=False, populationvar='Age', stdev=25., center=100., ax=ax3)
 
-    # line100Atlas.ProduceAtlas(proportional=False, populationvar='Age', stdev=15., center=200., ax=ax5)
+    offsetAtlas.ProduceAtlas(proportional=False, populationvar='Age', stdev=25., center=180., ax=ax5)
 
     
     

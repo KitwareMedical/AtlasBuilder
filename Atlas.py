@@ -157,9 +157,7 @@ class ProgrammableAtlas(AtlasBase):
             return
         # Use the center and the stdev to generate weights for the functions
         hiddenVariableData = self.__Population[populationvar]
-        weights = AtlasMath.Weighting.GenerateWeights(
-            hiddenVariableData, stdev, center)
-        print weights
+        weights = AtlasMath.Weighting.GenerateWeights(hiddenVariableData, stdev, center)
         weightdict = self.__MatchWeights(weights)
         # Determine which band depth function to use
         bandDepthGenerator = AtlasMath.BandDepth.WeightedIndicatorBandDepth
@@ -172,16 +170,10 @@ class ProgrammableAtlas(AtlasBase):
         # Calculate the band depth for all of the functions
         for j in range(2,jval+1):
             for key in self.__Functions:
-                function = self.__Functions[key]
-                bandDepthScores[key] += bandDepthGenerator(
-                    function, self.__Functions.values(), weights, j)
-                print key, bandDepthScores[key]
-                print key, weightdict[key]
+                bandDepthScores[key] += bandDepthGenerator(key, self.__Functions, weightdict, j)
         # sort by depth from deepest to shallowest
         sortedBandDepths = sorted(
             bandDepthScores.items(), key=operator.itemgetter(1), reverse=True)
-        print "depths: ", sortedBandDepths
-        print "weights: ", [(pair[0], weightdict[pair[0]]) for pair in sortedBandDepths]
         # plot the functional box plot
         self.__PlotWeightedAtlas(sortedBandDepths, weightdict)
         return
