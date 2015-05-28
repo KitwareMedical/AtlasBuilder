@@ -83,7 +83,15 @@ class ProgrammableAtlas(AtlasBase):
         self.__SetPopulation = True
         return
 
+    def AddPopulationData(self, populationdict):
+        for key in populationdict:
+            self.__Population[key] = populationdict[key]
+        self.__SetPopulation = True
+        return
+
     def DefineCategoryKey(self, key):
+        if key not in self.__Population:
+            sys.stdout.write(key + " is not key for population data")
         self.CategoryKey = key
         return
 
@@ -111,6 +119,11 @@ class ProgrammableAtlas(AtlasBase):
                     self.__Functions[names[i]].extend([val])
         self.__SetFunctions = True
         return
+
+    def AddFunctionData(self, functiondict):
+        for key in functiondict:
+            self.__Population[key] = functiondict[key]
+        self.__SetFunctions = True
 
     def __GenerateAtlas(self, proportional=False, jval=2):
         if not self.__SetFunctions:
