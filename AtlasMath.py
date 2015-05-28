@@ -10,11 +10,11 @@ class Weighting:
     @staticmethod
     def GenerateWeights(data, stdev, center):
         weights = []
-        running_sum = 0
+        running_sum = 0.
         for value in data:
-            w = np.exp(((value - center)**2)/(2*(stdev**2)))
+            w = np.exp(-((value - center)**2.)/(2.*(stdev**2.)))
             weights.extend([w])
-            running_sum = running_sum + w
+            running_sum += w
         return [i/running_sum for i in weights]
 
 
@@ -73,7 +73,7 @@ class BandDepth:
             bandRange = BandDepth.BandBounds(bandset, x)
             if function[x] < bandRange[0] or function[x] > bandRange[1]:
                 return 0.0
-        return 1
+        return 1.0
 
     @staticmethod
     def Proportion(function, bandset):
@@ -84,8 +84,9 @@ class BandDepth:
         proportion = 0.0
         for x in range(len(function)):
             bandRange = BandDepth.BandBounds(bandset, x)
-            if (bandRange[0] <= function[x]) and (bandRange[1] >= function[x]):
-                proportion = proportion + 1.0
+            if (bandRange[0] > function[x]) or (bandRange[1] < function[x]):
+                continue
+            proportion += 1.
         return proportion/len(function)
 
     @staticmethod
@@ -110,7 +111,13 @@ class BandDepth:
 
     @staticmethod
     def ProductOfList(numericallist):
-        r = 1
+        r = 1.
         for i in numericallist:
             r *= i
         return r
+
+    @staticmethod
+    def GenerateFences(minimum, maximum, median):
+        upperfence = median + (maximum - median)*1.5
+        lowerfence = median - (median - minimum)*1.5
+        return [upperfence, lowerfence]
