@@ -14,15 +14,13 @@ from Atlas import *
 	changed to fit hpw the data is stored '''
 
 
-def UsePopulationData(atlas):
+def UsePopulationData(atlas, categorykey):
     atlas.DefineCategoryKey(categorykey)
-    # can define dataset in one of two ways
     atlas.PopulationPaths = [
         os.path.join(datapath,'populationFile0.csv'),
         os.path.join(datapath,'populationFile1.csv'),
         os.path.join(datapath,'populationFile2.csv')]
     return
-
 
 def UseFunctionData(atlas):
     '''
@@ -35,27 +33,17 @@ def UseFunctionData(atlas):
         os.path.join(datapath,'FunctionFile2.csv')]
     return
 
-def ModifyFunctions(atlas):
-    '''
-    This is needed on a case by case basis.
-    I suggest reading the function files, modifying the data 
-    and writing the new data to a new file.
-    '''
-    pass
-
-
-
 def main():
     PediatricAirwaysAtlas = ProgrammableAtlas("Example Atlas")
-    UsePopulationData(PediatricAirwaysAtlas)
+    UsePopulationData(PediatricAirwaysAtlas, "CategoryKey")
     PediatricAirwaysAtlas.ParsePopulationData()
     UseFunctionData(PediatricAirwaysAtlas)
     # simply by defining the subplots beforehand and passing them you
     # can control the placement of the output graphs
-    f, ax = plt.subplots(1)
+    f, ax0 = plt.subplots(1)
     g, ax1 = plt.subplots(1)
-    PediatricAirwaysAtlas.ProduceAtlas(ax=ax1)
-    PediatricAirwaysAtlas.ProduceAtlas(proportional=True, ax = ax)
+    PediatricAirwaysAtlas.ProduceAtlas(ax=ax0)
+    PediatricAirwaysAtlas.ProduceAtlas(proportional=True, ax = ax1)
     plt.show()
     return
 

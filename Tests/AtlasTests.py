@@ -5,7 +5,7 @@ import numpy as np
 
 sys.path.append('..')
 
-from Atlas import *
+from AtlasBuilder import *
 
 ##########################################
 
@@ -32,7 +32,7 @@ def main():
     line4Atlas = ProgrammableAtlas("Horizontal4")
     line100Atlas = ProgrammableAtlas("Horizontal100")
     sineAtlas = ProgrammableAtlas("Sine")
-    offsetAtlas = ProgrammableAtlas("Off")
+    offsetAtlas = ProgrammableAtlas('Offset Atlas')
     crossAtlas = ProgrammableAtlas("Cross")
 
     pointAtlas.ParseFunctionData(['SinglePoints.csv'])
@@ -75,24 +75,25 @@ def main():
     
     # crossAtlas.ProduceAtlas(
     #     proportional=False, populationvar='Age', stdev=100., center=200.)
-    f, (ax0, ax1, ax2, ax3, ax5) = plt.subplots(5)
-    fn.fboxplot(functions, xdata=np.linspace(0., 1., 100), ax=ax2)
+    f, ax0 = plt.subplots(1)
+    g, ax1 = plt.subplots(1)
+    # fn.fboxplot(functions, xdata=np.linspace(0., 1., 100), ax=ax2)
     a = NormalDist(25., 20.)
     b = NormalDist(25., 100.)
     c = NormalDist(25., 180.)
     x = range(200)
     xdata = np.linspace(0, 200, 30)
     ydata = np.ones(30)/2.
-    ax0.plot(xdata, ydata, 'bo')
-    ax0. plot(x, a)
-    ax0. plot(x, b)
-    ax0. plot(x, c)
-
+    # ax0.plot(xdata, ydata, 'bo')
+    # ax0. plot(x, a)
+    # ax0. plot(x, b)
+    # ax0. plot(x, c)
+    offsetAtlas.ProduceAtlas(ax=ax0)
     offsetAtlas.ProduceAtlas(proportional=True, ax=ax1)
+    f, (ax2, ax3) = plt.subplots(2)
+    offsetAtlas.ProduceAtlas(proportional=True, populationvar='Age', stdev=25., center=100., ax=ax2)
 
     offsetAtlas.ProduceAtlas(proportional=False, populationvar='Age', stdev=25., center=100., ax=ax3)
-
-    offsetAtlas.ProduceAtlas(proportional=False, populationvar='Age', stdev=25., center=180., ax=ax5)
 
     
     
