@@ -1,3 +1,16 @@
+# Copyright [2015] [Kitware inc.]
+
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+
+#  http://www.apache.org/licenses/LICENSE-2.0
+
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 import os
 import csv
 import sys
@@ -40,11 +53,11 @@ class ProgrammableAtlas(AtlasBase):
         self.__Functions = dict()
         self.PopulationPaths = []
         self.FunctionPaths = []
-        self.CategoryKey = None
+        self.FunctionKey = None
         self.__Plot = None
         return
 
-    def ProduceAtlas(self, stdev=None, center=None, populationvar=None, proportional=False, jval=2, ax=None):
+    def ProduceAtlas(self, proportional=False, populationvar=None, stdev=None, center=None, jval=2, ax=None):
         self.__ConvertData()
         self.__SetPlot(ax)
         if populationvar is None:
@@ -58,15 +71,15 @@ class ProgrammableAtlas(AtlasBase):
             sys.stdout.write("Not a valid argument set\n")
             return
 
-    def ParsePopulationData(self, pathlist=None):
+    def ParsePopulationFromCsv(self, pathlist=None):
         if pathlist is None:
             pathlist = self.PopulationPaths
         self.__Population = dict()
         for inputpath in pathlist:
-            self.ExtendPopulationData(inputpath)
+            self.ExtendPopulationFromCsv(inputpath)
         return
 
-    def ExtendPopulationData(self, inputpath):
+    def ExtendPopulationFromCsv(self, inputpath):
         with open(inputpath, 'rb') as csvFile:
             reader = csv.reader(csvFile, delimiter=',', quotechar='"')
             header = True
@@ -83,27 +96,30 @@ class ProgrammableAtlas(AtlasBase):
         self.__SetPopulation = True
         return
 
-    def AddPopulationData(self, populationdict):
+    def ParsePopulationFromDict(self, populationdict):
         for key in populationdict:
             self.__Population[key] = populationdict[key]
         self.__SetPopulation = True
         return
 
-    def DefineCategoryKey(self, key):
+    def ParsePopulationArray(self, poparray, rowdata=False, headers=True):
+        pass
+
+    def DefineFunctionKey(self, key):
         if key not in self.__Population:
             sys.stdout.write(key + " is not key for population data")
-        self.CategoryKey = key
+        self.FunctionKey = key
         return
 
-    def ParseFunctionData(self, pathlist=None):
+    def ParseFunctionFromCsv(self, pathlist=None):
         self.__Functions = dict()
         if pathlist is None:
             pathlist = self.FunctionPaths
         for inputpath in pathlist:
-            self.ExtendFunctionData(inputpath)
+            self.ExtendFunctionFromCsv(inputpath)
         return
 
-    def ExtendFunctionData(self, inputpath):
+    def ExtendFunctionFromCsv(self, inputpath):
         with open(inputpath, 'rb') as csvFile:
             reader = csv.reader(csvFile, delimiter=',', quotechar='"')
             header = True
@@ -120,10 +136,13 @@ class ProgrammableAtlas(AtlasBase):
         self.__SetFunctions = True
         return
 
-    def AddFunctionData(self, functiondict):
+    def ParseFunctionFromDict(self, functiondict):
         for key in functiondict:
             self.__Population[key] = functiondict[key]
         self.__SetFunctions = True
+
+    def ParseFunctionArray(self, funcarray, rowdata=False, headers=True):
+        pass
 
     def __GenerateAtlas(self, proportional=False, jval=2):
         if not self.__SetFunctions:
@@ -158,7 +177,7 @@ class ProgrammableAtlas(AtlasBase):
         Functions with hidden variable values close to the center are weighted more than
         those that are far away.
         '''
-        if self.CategoryKey is None:
+        if self.FunctionKey is None:
             sys.stdout.write("Need to set the Category Key\n")
             return
         if not self.__SetFunctions:
@@ -269,7 +288,7 @@ class ProgrammableAtlas(AtlasBase):
 
     def __MatchWeights(self, weights):
         pairs = dict()
-        functionIDs = self.__Population[self.CategoryKey]
+        functionIDs = self.__Population[self.FunctionKey]
         for i, weight in enumerate(weights):
             pairs[functionIDs[i]] = weight
         return pairs

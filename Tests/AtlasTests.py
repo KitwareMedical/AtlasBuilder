@@ -1,3 +1,16 @@
+# Copyright [2015] [Kitware inc.]
+
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+
+#  http://www.apache.org/licenses/LICENSE-2.0
+
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 import sys
 import statsmodels.graphics.functional as fn
 import csv
@@ -35,18 +48,18 @@ def main():
     offsetAtlas = ProgrammableAtlas('Offset Atlas')
     crossAtlas = ProgrammableAtlas("Cross")
 
-    pointAtlas.ParseFunctionData(['SinglePoints.csv'])
-    line4Atlas.ParseFunctionData(['HorizontalLines4.csv'])
-    line100Atlas.ParseFunctionData(['HorizontalLines100.csv'])
-    sineAtlas.ParseFunctionData(['SineFunctions.csv'])
-    offsetAtlas.ParseFunctionData(['OffsetSines.csv'])
-    crossAtlas.ParseFunctionData(['Crossing.csv'])
+    pointAtlas.ParseFunctionFromCsv(['SinglePoints.csv'])
+    line4Atlas.ParseFunctionFromCsv(['HorizontalLines4.csv'])
+    line100Atlas.ParseFunctionFromCsv(['HorizontalLines100.csv'])
+    sineAtlas.ParseFunctionFromCsv(['SineFunctions.csv'])
+    offsetAtlas.ParseFunctionFromCsv(['OffsetSines.csv'])
+    crossAtlas.ParseFunctionFromCsv(['Crossing.csv'])
 
-    line4Atlas.ParsePopulationData(['PopulationData.csv'])
-    line100Atlas.ParsePopulationData(['PopulationData.csv'])
-    sineAtlas.ParsePopulationData(['PopulationData.csv'])
-    offsetAtlas.ParsePopulationData(['PopulationData.csv'])
-    crossAtlas.ParsePopulationData(['PopulationData.csv'])
+    line4Atlas.ParsePopulationFromCsv(['PopulationData.csv'])
+    line100Atlas.ParsePopulationFromCsv(['PopulationData.csv'])
+    sineAtlas.ParsePopulationFromCsv(['PopulationData.csv'])
+    offsetAtlas.ParsePopulationFromCsv(['PopulationData.csv'])
+    crossAtlas.ParsePopulationFromCsv(['PopulationData.csv'])
 
 
     # pointAtlas.ProduceAtlas()
@@ -61,11 +74,11 @@ def main():
     # sineAtlas.ProduceAtlas(proportional=True)
     functions = ParseCSV('OffsetSines.csv')
 
-    line4Atlas.CategoryKey = 'ScanID'
-    line100Atlas.CategoryKey = 'ScanID'
-    sineAtlas.CategoryKey = 'ScanID'
-    offsetAtlas.CategoryKey = 'ScanID'
-    crossAtlas.CategoryKey = 'ScanID'
+    line4Atlas.FunctionKey = 'ScanID'
+    line100Atlas.FunctionKey = 'ScanID'
+    sineAtlas.FunctionKey = 'ScanID'
+    offsetAtlas.FunctionKey = 'ScanID'
+    crossAtlas.FunctionKey = 'ScanID'
 
 
     # line4Atlas.ProduceAtlas(
