@@ -6,7 +6,7 @@
 1. AtlasBase
     - The base class for the atlas construction. This class has very limited functionality.
 2. ProgrammableAtlas
-    - This class stores data and gerneates the atlas graphs. It has multiple data import methods designed to minimize the effort required for a user to format their data.
+    - This class stores data and generates the atlas graphs. It has multiple data import methods designed to minimize the effort required for a user to format their data.
     - Implements the 4 different algorithms used to generate atlas.
 3. Weighting
     - A static class that uses a gaussian distribution to assign each function a weight.
@@ -22,7 +22,7 @@
 - **ParsePopulationFromCsv(pathlist=None)**
   
     Pass in a list of csv files and the data will be extracted and stored in the atlas.
-    The data must be seperated by column and each must have a unique header.
+    The data must be separated by column and each must have a unique header.
 
 - **ExtendPopulationFromCsv(inputpath)**
 
@@ -40,7 +40,7 @@
     "rowdata" is default as False and means the data is stored in columns. If True then data 
     is stored as rows.
 
-    "headers" is a flag that indicates the data in the first row/collumn represents labels for the data.
+    "headers" is a flag that indicates the data in the first row/column represents labels for the data.
     These will be read in and used as keys for the data when constructing a weighted atlas. If "headers" is
     False the keys will be integers starting at 0.
 
@@ -50,7 +50,7 @@
 
 - **ExtendFunctionFromCsv(inputpath)**
 
-    Same as for population data except different storage location aswell.
+    Same as for population data except different storage location as well.
 
 - **ParseFunctionFromDict(functiondict)**
     
@@ -72,7 +72,7 @@
 
     To produce a weighted function boxplot "populationvar", "stdev", and "center" must be specified. The "populationvar" given
     is a header in the population data (i.e. 'Age'). The weight is calculated by a normal distribution over that variable with
-    mean = "center" and standar deviation = "stdev". The sum of all the weights will be 1.
+    mean = "center" and standard deviation = "stdev". The sum of all the weights will be 1.
 
     The weighted atlas can use either the proportional or indicator function and is specified by the proportional flag.
 
@@ -90,7 +90,7 @@
     
     Before producing a weighted function boxplot you need to specify how the population data is assigned to the function data.
     Each function corresponds to a specific instance and the population data gives information on each instance. The user
-    uses this function to allign the population data with each function. The "key" provided should correspond to a header 
+    uses this function to align the population data with each function. The "key" provided should correspond to a header 
     from the population data.
 
 ### BandDepth Methods
@@ -99,7 +99,7 @@ All BandDepth methods are static.
 
 - **IndicatorBandDepth(function, functionset, j=2)**
 
-    Pass in the function you are interested in caculating the band depth for, the total set of functions as a list of the functions,
+    Pass in the function you are interested in calculating the band depth for, the total set of functions as a list of the functions,
     and the j-value. Returns the band depth of the function without any weighting and using the indicator function.
 
 - **ProportionalBandDepth(function, functionset, j=2)**
@@ -109,13 +109,13 @@ All BandDepth methods are static.
 - **WeightedIndicatorBandDepth(key, functiondict, weightdict, j=2)**
     
     Pass in the functionID for the test function, a dictionary that matches the functionIDs to the function data, a dictionary that matches
-    the functionID to the function weightm and the j-value. Returns the band depth of the test function based on the weights and 
+    the functionID to the function weight and the j-value. Returns the band depth of the test function based on the weights and 
     using the indicator function.
 
 - **WeightedProportionalBandDepth(key, functiondict, weightdict, j=2)**
 
     Pass in the functionID for the test function, a dictionary that matches the functionIDs to the function data, a dictionary that matches
-    the functionID to the function weightm and the j-value. Returns the band depth of the test function based on the weights and 
+    the functionID to the function weight and the j-value. Returns the band depth of the test function based on the weights and 
     using the proportional function.
 
 - **Indicator(function, bandset)**

@@ -2,7 +2,7 @@
 
 AtlasBuilder is a free and open-source python tool that enables you to produce functional boxplots for
 your data. It was designed to enable the production of atlases for either all or a part of a population.
-AtlasBuilder supports four differnet algorithms for atlas construction:
+AtlasBuilder supports four different algorithms for atlas construction:
 
 - Indicator un-weighted
 - Proportional un-weighted
