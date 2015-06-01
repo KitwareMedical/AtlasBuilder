@@ -2,6 +2,15 @@
 
 ---
 
+## Publications
+
+This work is based on the concepts explained in [Functional Analysis via Extensions of the Band Depth](http://arxiv.org/pdf/0708.1107.pdf?origin=publication_detail) by Lopez-Pintado and Jornsten,
+[Weighted Functional Boxplot with Application to Statistical Atlas Construction](http://link.springer.com/chapter/10.1007/978-3-642-40760-4_73) by Hong, Davis, Marron, Kwitt, and Niethammer, and
+[Statistical Atlas Construction via Weighted Functional Boxplots](http://www.sciencedirect.com/science/article/pii/S1361841514000334) by Hong et al. In this section I will present the basic concepts
+that lead to the functionality of this module. For a more rigorous understanding of the math involved, please examine the papers.
+
+---
+
 ## Background
 
 Most people are familiar with the basic form of a boxplot. It is a graph that visuallizes the median,
@@ -23,8 +32,8 @@ To solve this problem there needs to be a way to expand the definition of a medi
 ## Median and Band Depth
 
 The typical explanation for the median value in a dataset is the "middle value" of that set. Algorithmically,
-this specifies that you sort the dataset then find the N/2'th value in that list. That's the median. Unfortunately,
-this algorithm doesn't work well beyond point data. How do you sort a set of sine functions, for instance. However,
+this specifies that you sort the dataset and the N/2'th value in that list is the median. Unfortunately, this 
+algorithm doesn't work well beyond point data. How do you sort a set of sine functions, for instance. However,
 there is another algorithm that will yeild the same median. For point data, each value is compared against a pair
 of other values in the dataset. If the test value is between the other 2 values then its *depth* is incrimented. 
 After this is done for all the data, the value with the highest depth is the median. 
@@ -52,13 +61,11 @@ user to specify the j-value they desire.
 
 ## Weighted Band Depth
 
-Often times the population the functions come from are not homgeneous. One would reasonably expect there to be some
-distribution for a seperate variable. For example, we may have a set of functions that represent tree diameter as a
-function of height. However, there would be drastic differences in the population depending on the age of the trees.
-To represent an atlas that is more indicative of trees of a specific age we would assign weights to the functions
-so that we would emphasize trees close to that age. This is independent of whether or not we want use the indicator
-or proportional functions.
+Often times, the population the functions come from are not homgeneous. For example, we may have a set of functions 
+that represent trachea diameter as a function of depth along the trachea. However, there could be drastic differences 
+in functions depending on the age of the individuals. We can use a weighted function boxplot to generate an atlas for
+a specific age by increasing the weight of the functions close to that age. This enables the identification of age 
+specific outliers.
 
 ---
 
-## 

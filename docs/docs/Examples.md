@@ -4,6 +4,9 @@
 
 ## Basics
 
+AtlasBuilder uses matplotlib.pyplot and abreviates it as plt. This is why you see plt.show() at the end of each example.
+You will not have to import matplotlib.pyplot yourself but should have it installed on you machine.
+
 ### Unweighted Indicator Atlas
 
     import AtlasBuilder

@@ -29,13 +29,13 @@ You can find out more about the population atlases, band depth, and functional b
 
 You can explore the API [here](/API/).
 
-## Installation
+<!-- ## Installation -->
 
-Install AtlasBuilder by running:
+<!-- Install AtlasBuilder by running:
 
     pip install AtlasBuilder
 
-<!-- ## Contribute
+## Contribute
 
 - Issue Tracker: github.com/project/project/issues Source Code:
 - github.com/project/project -->

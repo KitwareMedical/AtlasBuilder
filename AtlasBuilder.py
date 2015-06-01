@@ -103,7 +103,10 @@ class ProgrammableAtlas(AtlasBase):
         return
 
     def ParsePopulationArray(self, poparray, rowdata=False, headers=True):
-        pass
+        if not rowdata:
+            self.__ParseColumns(poparray, headers, self.__Population)
+            return
+        self.__ParseRows(poparray, headers, self.__Population)
 
     def DefineFunctionKey(self, key):
         if key not in self.__Population:
@@ -142,7 +145,10 @@ class ProgrammableAtlas(AtlasBase):
         self.__SetFunctions = True
 
     def ParseFunctionArray(self, funcarray, rowdata=False, headers=True):
-        pass
+        if not rowdata:
+            self.__ParseColumns(poparray, headers, self.__Functions)
+            return
+        self.__ParseRows(poparray, headers, self.__Functions)
 
     def __GenerateAtlas(self, proportional=False, jval=2):
         if not self.__SetFunctions:
@@ -310,5 +316,33 @@ class ProgrammableAtlas(AtlasBase):
         self.__Plot = ax
         return
 
+    def __ParseRows(self, dataarray, headers=True, datadict=None):
+        if datadict is None:
+            sys.stdout.write('no location to store data specified')
+            return
+        if headers:
+            keys = [row[0] for row in dataarray]
+            functions = [row[1:] for row in dataarray]
+            for i in range(len(keys)):
+                datadict[keys[i]] = functions[i]
+            return
+        keys = [str(i) for i in range(np.shape(dataarray)[0])]
+        functions = row for row in dataarray
+        for i in range(len(keys)):
+            datadict[keys[i]] = functions[i]
+
+    def __ParseColumns(self, dataarray, headers=True, datadict=None):
+        if datadict is None:
+            sys.stdout.write('no location to store data specified')
+            return
+        if headers:
+            names = dataarray[0]
+            body = dataarray[1:]
+            for i,key in enumerate(names):
+                datadict[key] = [row[i] for row in body]
+            return
+        names = [str(i) for i in range(np.shape(dataarray)[1])]
+        for i,key in enumerate(names):
+            datadict[key] = [row[i] for row in dataarray]
 
 #############################
