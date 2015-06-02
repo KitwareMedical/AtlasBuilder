@@ -327,7 +327,7 @@ class ProgrammableAtlas(AtlasBase):
                 datadict[keys[i]] = functions[i]
             return
         keys = [str(i) for i in range(np.shape(dataarray)[0])]
-        functions = row for row in dataarray
+        functions = [row for row in dataarray]
         for i in range(len(keys)):
             datadict[keys[i]] = functions[i]
 
