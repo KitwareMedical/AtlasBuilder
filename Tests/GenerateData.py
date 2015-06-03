@@ -41,6 +41,7 @@ def OffsetSines(n=20, pointspercurve=10):
         functionlist.append(function)
     return functionlist
 
+
 def Crossing(n=20, pointspercurve=10):
     functionlist = []
     ages = np.linspace(0., 200., n)

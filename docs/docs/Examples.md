@@ -10,6 +10,7 @@ You will not have to import matplotlib.pyplot yourself but should have it instal
 ### Unweighted Indicator Atlas
 
     import AtlasBuilder
+    import matplotlib.pyplot as plt
     
     atlas0 = ProgrammableAtlas("Example0")
     atlas0.ParseFunctionFromCsv(["Functions.csv"])
@@ -20,6 +21,7 @@ You will not have to import matplotlib.pyplot yourself but should have it instal
 ### Unweighted Proportional Atlas
 
     import AtlasBuilder
+    import matplotlib.pyplot as plt
 
     atlas1 = ProgrammableAtlas("Example1")
     atlas1.ParseFunctionFromCsv(["Functions.csv"])
@@ -30,6 +32,7 @@ You will not have to import matplotlib.pyplot yourself but should have it instal
 ### Weighted Indicator Atlas
 
     import AtlasBuilder
+    import matplotlib.pyplot as plt
 
     atlas2 = ProgrammableAtlas("Example2")
     atlas2.ParseFunctionFromCsv(['Functions.csv'])
@@ -42,6 +45,7 @@ You will not have to import matplotlib.pyplot yourself but should have it instal
 ### Weighted Proportional Atlas
 
     import AtlasBuilder
+    import matplotlib.pyplot as plt
 
     atlas3 = ProgrammableAtlas("Example3")
     atlas3.ParseFunctionFromCsv(['Functions.csv'])
@@ -56,6 +60,7 @@ You will not have to import matplotlib.pyplot yourself but should have it instal
 ### 2x2 Grid
 
     import AtlasBuilder
+    import matplotlib.pyplot as plt
 
     f, ((ax0, ax1), (ax2, ax3)) = plt.subplots(2, 2)
 
@@ -73,6 +78,7 @@ You will not have to import matplotlib.pyplot yourself but should have it instal
 ### Separate Population Variables
 
     import AtlasBuilder
+    import matplotlib.pyplot as plt
 
     f, (ax0, ax1) = plt.subplots(2)
 
@@ -88,6 +94,7 @@ You will not have to import matplotlib.pyplot yourself but should have it instal
 ### Overlapping
 
     import AtlasBuilder
+    import matplotlib.pyplot as plt
 
     f, ax0 = plt.subplots(1)
 

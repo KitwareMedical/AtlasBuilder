@@ -22,7 +22,8 @@ from AtlasBuilder import *
 
 ##########################################
 
-def ParseCSV( csvFileName ):
+
+def ParseCSV(csvFileName):
     out = []
     with open(csvFileName, 'rb') as csvFile:
         reader = csv.reader(csvFile, delimiter=',', quotechar='"')
@@ -31,14 +32,16 @@ def ParseCSV( csvFileName ):
             if (skip):
                 skip = False
                 for fn in row:
-                	out.append([])
+                    out.append([])
                 continue
             for i, val in enumerate(row):
-            	out[i].append(float(val))
+                out[i].append(float(val))
     return out
+
 
 def NormalDist(stdev=15., center=100., minv=0, maxv=200):
     return [np.exp(-((i - center)**2.)/(2.*(stdev**2.))) for i in range(minv, maxv)]
+
 
 def main():
     pointAtlas = ProgrammableAtlas("Points")
@@ -48,12 +51,12 @@ def main():
     offsetAtlas = ProgrammableAtlas('Offset Atlas')
     crossAtlas = ProgrammableAtlas("Cross")
 
-    pointAtlas.ParseFunctionFromCsv(['SinglePoints.csv'])
-    line4Atlas.ParseFunctionFromCsv(['HorizontalLines4.csv'])
-    line100Atlas.ParseFunctionFromCsv(['HorizontalLines100.csv'])
-    sineAtlas.ParseFunctionFromCsv(['SineFunctions.csv'])
-    offsetAtlas.ParseFunctionFromCsv(['OffsetSines.csv'])
-    crossAtlas.ParseFunctionFromCsv(['Crossing.csv'])
+    pointAtlas.ParseCurveFromCsv(['SinglePoints.csv'])
+    line4Atlas.ParseCurveFromCsv(['HorizontalLines4.csv'])
+    line100Atlas.ParseCurveFromCsv(['HorizontalLines100.csv'])
+    sineAtlas.ParseCurveFromCsv(['SineFunctions.csv'])
+    offsetAtlas.ParseCurveFromCsv(['OffsetSines.csv'])
+    crossAtlas.ParseCurveFromCsv(['Crossing.csv'])
 
     line4Atlas.ParsePopulationFromCsv(['PopulationData.csv'])
     line100Atlas.ParsePopulationFromCsv(['PopulationData.csv'])
@@ -61,12 +64,10 @@ def main():
     offsetAtlas.ParsePopulationFromCsv(['PopulationData.csv'])
     crossAtlas.ParsePopulationFromCsv(['PopulationData.csv'])
 
-
     # pointAtlas.ProduceAtlas()
     # line4Atlas.ProduceAtlas()
     # line100Atlas.ProduceAtlas()
     # sineAtlas.ProduceAtlas()
-
 
     # pointAtlas.ProduceAtlas(proportional=True)
     # line4Atlas.ProduceAtlas(proportional=True)
@@ -74,18 +75,17 @@ def main():
     # sineAtlas.ProduceAtlas(proportional=True)
     functions = ParseCSV('OffsetSines.csv')
 
-    line4Atlas.FunctionKey = 'ScanID'
-    line100Atlas.FunctionKey = 'ScanID'
-    sineAtlas.FunctionKey = 'ScanID'
-    offsetAtlas.FunctionKey = 'ScanID'
-    crossAtlas.FunctionKey = 'ScanID'
-
+    line4Atlas.CurveKey = 'ScanID'
+    line100Atlas.CurveKey = 'ScanID'
+    sineAtlas.CurveKey = 'ScanID'
+    offsetAtlas.CurveKey = 'ScanID'
+    crossAtlas.CurveKey = 'ScanID'
 
     # line4Atlas.ProduceAtlas(
     #     proportional=False, populationvar='Age', stdev=100., center=20.)
     # line100Atlas.ProduceAtlas(
     #     proportional=False, populationvar='Age', stdev=100., center=200.)
-    
+
     # crossAtlas.ProduceAtlas(
     #     proportional=False, populationvar='Age', stdev=100., center=200.)
     f, ax0 = plt.subplots(1)
@@ -104,17 +104,15 @@ def main():
     offsetAtlas.ProduceAtlas(ax=ax0)
     offsetAtlas.ProduceAtlas(proportional=True, ax=ax1)
     f, (ax2, ax3) = plt.subplots(2)
-    offsetAtlas.ProduceAtlas(proportional=True, populationvar='Age', stdev=25., center=100., ax=ax2)
+    offsetAtlas.ProduceAtlas(
+        proportional=True, populationvar='Age', stdev=25., center=100., ax=ax2)
 
-    offsetAtlas.ProduceAtlas(proportional=False, populationvar='Age', stdev=25., center=100., ax=ax3)
-
-    
-    
-    
+    offsetAtlas.ProduceAtlas(
+        proportional=False, populationvar='Age', stdev=25., center=100., ax=ax3)
 
     # offsetAtlas.ProduceAtlas(
-    #     proportional=True, populationvar='Age', stdev=100., center=20., ax=ax1)
-    
+    # proportional=True, populationvar='Age', stdev=100., center=20., ax=ax1)
+
     # # line100Atlas.ProduceAtlas(
     # #     proportional=True, populationvar='Age', stdev=100., center=200.)
     # offsetAtlas.ProduceAtlas(

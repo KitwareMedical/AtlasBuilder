@@ -48,12 +48,12 @@ class ProgrammableAtlas(AtlasBase):
     def __init__(self, name):
         super(ProgrammableAtlas, self).__init__(name)
         self.__SetPopulation = False
-        self.__SetFunctions = False
-        self.__Population = dict()
-        self.__Functions = dict()
         self.PopulationPaths = []
-        self.FunctionPaths = []
-        self.FunctionKey = None
+        self.__Population = {}
+        self.__SetCurves = False
+        self.CurvePaths = []
+        self.CurveKey = None
+        self.__Curves = {}
         self.__Plot = None
         return
 
@@ -61,20 +61,18 @@ class ProgrammableAtlas(AtlasBase):
         self.__ConvertData()
         self.__SetPlot(ax)
         if populationvar is None:
-            self.__GenerateAtlas(proportional, jval)
-            return
+            return self.__GenerateAtlas(proportional, jval)
         elif populationvar is not None:
             self.__ConvertData(populationvar)
-            self.__GenerateWeightedAtlas(populationvar, stdev, center, proportional, jval)
-            return
+            return self.__GenerateWeightedAtlas(populationvar, stdev, center, proportional, jval)
         else:
             sys.stdout.write("Not a valid argument set\n")
-            return
+            return None
 
     def ParsePopulationFromCsv(self, pathlist=None):
         if pathlist is None:
             pathlist = self.PopulationPaths
-        self.__Population = dict()
+        self.__Population = {}
         for inputpath in pathlist:
             self.ExtendPopulationFromCsv(inputpath)
         return
@@ -104,25 +102,25 @@ class ProgrammableAtlas(AtlasBase):
 
     def ParsePopulationArray(self, poparray, rowdata=False, headers=True):
         if not rowdata:
-            self.__ParseColumns(poparray, headers, self.__Population)
+            self.__ParseRows(poparray, headers, self.__Population)
             return
-        self.__ParseRows(poparray, headers, self.__Population)
+        self.__ParseColumns(poparray, headers, self.__Population)
 
-    def DefineFunctionKey(self, key):
+    def DefineCurveKey(self, key):
         if key not in self.__Population:
             sys.stdout.write(key + " is not key for population data")
-        self.FunctionKey = key
+        self.CurveKey = key
         return
 
-    def ParseFunctionFromCsv(self, pathlist=None):
-        self.__Functions = dict()
+    def ParseCurveFromCsv(self, pathlist=None):
+        self.__Curves = {}
         if pathlist is None:
-            pathlist = self.FunctionPaths
+            pathlist = self.CurvePaths
         for inputpath in pathlist:
-            self.ExtendFunctionFromCsv(inputpath)
+            self.ExtendCurveFromCsv(inputpath)
         return
 
-    def ExtendFunctionFromCsv(self, inputpath):
+    def ExtendCurveFromCsv(self, inputpath):
         with open(inputpath, 'rb') as csvFile:
             reader = csv.reader(csvFile, delimiter=',', quotechar='"')
             header = True
@@ -131,62 +129,66 @@ class ProgrammableAtlas(AtlasBase):
                 if (header):
                     header = False
                     for var in row:
-                        self.__Functions[var] = []
+                        self.__Curves[var] = []
                         names.append(var)
                     continue
                 for i, val in enumerate(row):
-                    self.__Functions[names[i]].extend([val])
-        self.__SetFunctions = True
+                    self.__Curves[names[i]].extend([val])
+        self.__SetCurves = True
         return
 
-    def ParseFunctionFromDict(self, functiondict):
+    def ParseCurveFromDict(self, functiondict):
         for key in functiondict:
             self.__Population[key] = functiondict[key]
-        self.__SetFunctions = True
+        self.__SetCurves = True
 
-    def ParseFunctionArray(self, funcarray, rowdata=False, headers=True):
+    def ParseCurveArray(self, funcarray, rowdata=False, headers=True):
         if not rowdata:
-            self.__ParseColumns(poparray, headers, self.__Functions)
+            self.__ParseColumns(poparray, headers, self.__Curves)
             return
-        self.__ParseRows(poparray, headers, self.__Functions)
+        self.__ParseRows(poparray, headers, self.__Curves)
+
+    def GetCurves(self):
+        return self.__Curves
 
     def __GenerateAtlas(self, proportional=False, jval=2):
-        if not self.__SetFunctions:
+        if not self.__SetCurves:
             sys.stdout.write("There is no function data\n")
             return
         bandDepthGenerator = AtlasMath.BandDepth.IndicatorBandDepth
         if proportional:
             bandDepthGenerator = AtlasMath.BandDepth.ProportionalBandDepth
         # generate all band depths
-        bandDepthScores = dict()
-        #initialize dictionary
-        for key in self.__Functions:
+        bandDepthScores = {}
+        # initialize dictionary
+        for key in self.__Curves:
             bandDepthScores[key] = 0.
         # sum from j = 2 to jval
-        for j in range(2,jval+1):
-            for key in self.__Functions:
-                function = self.__Functions[key]
+        for j in range(2, jval+1):
+            for key in self.__Curves:
+                function = self.__Curves[key]
                 bandDepthScores[key] += bandDepthGenerator(
-                    function, self.__Functions.values(), j)
+                    function, self.__Curves.values(), j)
         # order band depths
         sortedBandDepths = sorted(
             bandDepthScores.items(), key=operator.itemgetter(1), reverse=True)
         # plot the median, the 50% band, the fences, and outliers
         self.__PlotAtlas(sortedBandDepths)
-        return
+        return bandDepthScores
 
     def __GenerateWeightedAtlas(self, populationvar, stdev, center, proportional=False, jval=2):
         '''
         "populationvar" is the variable used to give weights to the functions.
         "stdev" is the standard deviation of the gaussian weighting function.
         "center" is the center of the gaussian weighting function. 
-        Functions with hidden variable values close to the center are weighted more than
+        Curves with hidden variable values close to the center are weighted more than
         those that are far away.
         '''
-        if self.FunctionKey is None:
-            sys.stdout.write("Need to set the Category Key\n")
+        if self.CurveKey is None:
+            sys.stdout.write(
+                "Need to define the function Key: DefineCurveKey('key')\n")
             return
-        if not self.__SetFunctions:
+        if not self.__SetCurves:
             sys.stdout.write("There is no function data\n")
             return
         if not self.__SetPopulation:
@@ -195,57 +197,60 @@ class ProgrammableAtlas(AtlasBase):
             return
         # Use the center and the stdev to generate weights for the functions
         hiddenVariableData = self.__Population[populationvar]
-        weights = AtlasMath.Weighting.GenerateWeights(hiddenVariableData, stdev, center)
+        weights = AtlasMath.Weighting.GenerateWeights(
+            hiddenVariableData, stdev, center)
         weightdict = self.__MatchWeights(weights)
         # Determine which band depth function to use
         bandDepthGenerator = AtlasMath.BandDepth.WeightedIndicatorBandDepth
         if proportional:
             bandDepthGenerator = AtlasMath.BandDepth.WeightedProportionalBandDepth
         # initialize dictionary
-        bandDepthScores = dict()
-        for key in self.__Functions:
+        bandDepthScores = {}
+        for key in self.__Curves:
             bandDepthScores[key] = 0.
         # Calculate the band depth for all of the functions
-        for j in range(2,jval+1):
-            for key in self.__Functions:
-                bandDepthScores[key] += bandDepthGenerator(key, self.__Functions, weightdict, j)
+        for j in range(2, jval+1):
+            for key in self.__Curves:
+                bandDepthScores[
+                    key] += bandDepthGenerator(key, self.__Curves, weightdict, j)
         # sort by depth from deepest to shallowest
         sortedBandDepths = sorted(
             bandDepthScores.items(), key=operator.itemgetter(1), reverse=True)
         # plot the functional box plot
         self.__PlotWeightedAtlas(sortedBandDepths, weightdict)
-        return
+        return bandDepthScores
 
     def __PlotAtlas(self, sortedfunctiontuples):
         '''
         the function tuples come in key value pairs
-        the keys are used with self.__Functions to 
+        the keys are used with self.__Curves to 
         extract the actual function values
         '''
-        median = self.__Functions[sortedfunctiontuples[0][0]]
+        median = self.__Curves[sortedfunctiontuples[0][0]]
         minimum = np.Inf + np.zeros(len(median))
         maximum = -np.Inf + np.zeros(len(median))
         outliers = []
         half = len(sortedfunctiontuples)//2
         # use the deepest half to determine the IQR
         for pair in sortedfunctiontuples[:half]:
-            maximum = np.maximum(maximum, self.__Functions[pair[0]])
-            minimum = np.minimum(minimum, self.__Functions[pair[0]])
+            maximum = np.maximum(maximum, self.__Curves[pair[0]])
+            minimum = np.minimum(minimum, self.__Curves[pair[0]])
 
-        # need to edit this to calculate the fences and outliers
-        lst = [self.__Functions[pair[0]] for pair in sortedfunctiontuples]
+        # calculate the fences and outliers
+        lst = [self.__Curves[pair[0]] for pair in sortedfunctiontuples]
         inner_median = np.median(lst, axis=0)
-        fences = AtlasMath.BandDepth.GenerateFences(minimum, maximum, inner_median)
+        fences = AtlasMath.BandDepth.GenerateFences(
+            minimum, maximum, inner_median)
 
         for pair in sortedfunctiontuples:
-            if np.any(self.__Functions[pair[0]] > fences[0]) or np.any(self.__Functions[pair[0]] < fences[1]):
-                outliers.append(self.__Functions[pair[0]])
+            if np.any(self.__Curves[pair[0]] > fences[0]) or np.any(self.__Curves[pair[0]] < fences[1]):
+                outliers.append(self.__Curves[pair[0]])
         self.__PlotLines(median, maximum, minimum, outliers)
         return
 
     def __PlotWeightedAtlas(self, sortedfunctiontuples, weightdict):
         # initialize the data
-        median = self.__Functions[sortedfunctiontuples[0][0]]
+        median = self.__Curves[sortedfunctiontuples[0][0]]
         minimum = np.Inf + np.zeros(len(median))
         maximum = -np.Inf + np.zeros(len(median))
         outliers = []
@@ -254,9 +259,9 @@ class ProgrammableAtlas(AtlasBase):
         # determine the functions in inter quartile range (IQR)
         while cumulativeWeight < .5:
             maximum = np.maximum(
-                maximum, self.__Functions[sortedfunctiontuples[i][0]])
+                maximum, self.__Curves[sortedfunctiontuples[i][0]])
             minimum = np.minimum(
-                minimum, self.__Functions[sortedfunctiontuples[i][0]])
+                minimum, self.__Curves[sortedfunctiontuples[i][0]])
             cumulativeWeight += weightdict[sortedfunctiontuples[i][0]]
             i += 1
 
@@ -266,25 +271,27 @@ class ProgrammableAtlas(AtlasBase):
         # Determine the functions in the 99.3% confidence interval
         while cumulativeWeight < .993:
             upperfence = np.maximum(
-                upperfence, self.__Functions[sortedfunctiontuples[i][0]])
+                upperfence, self.__Curves[sortedfunctiontuples[i][0]])
             lowerfence = np.minimum(
-                lowerfence, self.__Functions[sortedfunctiontuples[i][0]])
+                lowerfence, self.__Curves[sortedfunctiontuples[i][0]])
             cumulativeWeight += weightdict[sortedfunctiontuples[i][0]]
             i += 1
         fences = [
             np.minimum(upperfence, fences[0]), np.maximum(lowerfence, fences[1])]
         # the left over functions are outliers
         for pair in sortedfunctiontuples[i:]:
-            outliers.append(self.__Functions[pair[0]])
+            outliers.append(self.__Curves[pair[0]])
         self.__PlotLines(median, maximum, minimum, outliers, fences)
         return
 
     def __PlotLines(self, median, maximum, minimum, outliers, fences=[]):
-        # TODO: Pass in information to use for the axes (finally get to use self.Name!!!)
+        # TODO: Pass in information to use for the axes (finally get to use
+        # self.Name!!!)
         x = np.linspace(0.0, 1.0, len(median))
         self.__Plot.plot(x, maximum, color='b', linestyle='-')
         self.__Plot.plot(x, minimum, color='b', linestyle='-')
-        self.__Plot.fill_between(x, minimum, maximum, color='magenta', alpha='0.5')
+        self.__Plot.fill_between(
+            x, minimum, maximum, color='magenta', alpha='0.5')
         for bound in fences:
             self.__Plot.plot(x, bound, color='b', linestyle='-')
         for function in outliers:
@@ -293,17 +300,17 @@ class ProgrammableAtlas(AtlasBase):
         return
 
     def __MatchWeights(self, weights):
-        pairs = dict()
-        functionIDs = self.__Population[self.FunctionKey]
+        pairs = {}
+        functionIDs = self.__Population[self.CurveKey]
         for i, weight in enumerate(weights):
             pairs[functionIDs[i]] = weight
         return pairs
 
     def __ConvertData(self, field=None):
         if field is None:
-            for key in self.__Functions:
-                function = self.__Functions[key]
-                self.__Functions[key] = [float(i) for i in function]
+            for key in self.__Curves:
+                function = self.__Curves[key]
+                self.__Curves[key] = [float(i) for i in function]
             return
         function = self.__Population[field]
         self.__Population[field] = [float(i) for i in function]
@@ -338,11 +345,11 @@ class ProgrammableAtlas(AtlasBase):
         if headers:
             names = dataarray[0]
             body = dataarray[1:]
-            for i,key in enumerate(names):
+            for i, key in enumerate(names):
                 datadict[key] = [row[i] for row in body]
             return
         names = [str(i) for i in range(np.shape(dataarray)[1])]
-        for i,key in enumerate(names):
+        for i, key in enumerate(names):
             datadict[key] = [row[i] for row in dataarray]
 
 #############################
