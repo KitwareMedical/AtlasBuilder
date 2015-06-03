@@ -30,6 +30,15 @@ class Weighting:
             running_sum += w
         return [i/running_sum for i in weights]
 
+    @staticmethod
+    def GenerateWeightDict(data, curveIDs, stdev, center):
+        weights = Weighting.GenerateWeights(data, stdev, center)
+        weightdict = {}
+        for i,ID in enumerate(curveIDs):
+            weightdict[ID] = weights[i]
+        return weightdict
+
+
 
 ################################
 class BandDepth:

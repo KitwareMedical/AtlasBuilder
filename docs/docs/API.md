@@ -136,5 +136,18 @@ All BandDepth methods are static.
 
 - **GenerateFences(minimum, maximum, median)**
 
-    Pass in the median curve, first quartile curve, and third quartile curve. These inputs should be the same shape. Will return 2 curves ina list to represent the upper fence
-    and lower fence used to identify outliers.
+    Pass in the median curve, first quartile curve, and third quartile curve. These inputs should be the same shape. Will return 
+    2 curves ina list to represent the upper fence and lower fence used to identify outliers.
+
+### Weighting Methods
+
+- **GenerateWeights(data, stdev, center)**
+
+    Pass in data as a list of floats, stdev as a float, and center as a float. Returns a list of weights. These are matched with the data by index.
+    This is a static function.
+
+- **GenerateWeightDict(data, curveIDs, stdev, center)**
+    
+    Pass in data as a list of floats, curveIDs as a list of unique IDs, stdev as a float, and center as a float. Returns a dictionary with the
+    weights matche to the IDs listed in the curveIDs list. The IDs in the curveIDs list should be index matched with the data in the data list.
+    This is a static function.

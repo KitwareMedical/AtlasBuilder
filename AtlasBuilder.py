@@ -151,6 +151,9 @@ class ProgrammableAtlas(AtlasBase):
     def GetCurves(self):
         return self.__Curves
 
+    def GetPopulationData(self):
+        return self.__Population
+
     def __GenerateAtlas(self, proportional=False, jval=2):
         if not self.__SetCurves:
             sys.stdout.write("There is no function data\n")
