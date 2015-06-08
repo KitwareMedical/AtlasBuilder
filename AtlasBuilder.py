@@ -101,7 +101,7 @@ class ProgrammableAtlas(AtlasBase):
         return
 
     def ParsePopulationArray(self, poparray, rowdata=False, headers=True):
-        if rowdata:
+        if not rowdata:
             self.__ParseRows(poparray, headers, self.__Population)
             return
         self.__ParseColumns(poparray, headers, self.__Population)
@@ -154,11 +154,17 @@ class ProgrammableAtlas(AtlasBase):
     def GetPopulationData(self):
         return self.__Population
 
-    def ParseFunctionArray(self, funcarray, rowdata=False, headers=True):
-        if rowdata:
-            self.__ParseRows(poparray, headers, self.__Functions)
+    def ParseCurveArray(self, funcarray, rowdata=False, headers=True):
+        if not rowdata:
+            self.__ParseColumns(poparray, headers, self.__Curves)
             return
-        self.__ParseColumns(poparray, headers, self.__Functions)
+        self.__ParseRows(poparray, headers, self.__Curves)
+
+    def GetCurves(self):
+        return self.__Curves
+
+    def GetPopulationData(self):
+        return self.__Population
 
     def __GenerateAtlas(self, proportional=False, jval=2):
         if not self.__SetCurves:
