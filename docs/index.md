@@ -47,3 +47,7 @@ If you are having issues, please let us know. You can get in contact with me at:
 ## License
 
 The project is licensed under Apache License, Version 2.0. All information about this license and your rights to the software under this license are available [here](http://www.apache.org/licenses/LICENSE-2.0.html).
+
+## Acknowledgments
+
+Atlas Builder development was made possible thanks to funding by NIH grant #5R01HL105241-04
